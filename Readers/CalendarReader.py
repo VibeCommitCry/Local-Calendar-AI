@@ -1,9 +1,8 @@
 # CalendarReader.py
 from Models.CalendarEvent import CalendarEvent
 from Strategies.CalendarStrategy import CalendarStrategy
-from Strategies.CalendarGoogle import (
-    CalendarGoogle,
-)  
+from Strategies.CalendarGoogle import CalendarGoogle
+# from Strategies.CalendarMicrosoft import CalendarMicrosoft
 
 
 class CalendarReader:

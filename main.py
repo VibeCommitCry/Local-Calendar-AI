@@ -1,16 +1,11 @@
-from Readers.CalendarReader import CalendarReader
-from Readers.EmailReader import EmailReader
+from Services.EmailService import EmailService
+from Models.EmailFilter import EmailFilter
 
-if __name__ == "__main__":
-    print("-------- Calendar ----------")
-    for e in CalendarReader().collect_calendars():
-        print(e.start, "-", e.title)
-    print("-------- Calendar ----------")
-    
-    print("--------          ----------")
-    
-    print("-------- Email ----------")
+from Services.CalendarService import CalendarService
 
-    for m in EmailReader().collect_emails():
-        print(m.received, "|", m.sender, "|", m.subject)
-    print("-------- Email ----------")
+for m in EmailService().read_emails(EmailFilter(unread_only=True)):
+    print(m.received, "|", m.sender, "|", m.subject)
+
+
+for e in CalendarService().read_events():
+    print(e.start, "-", e.title)

@@ -1,4 +1,3 @@
-# Models/EmailMessage.py
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -8,5 +7,6 @@ class EmailMessage:
     sender: str
     subject: str
     received: datetime
-    snippet: str   # short preview text from Gmail
-    source: str    # "gmail", later maybe "outlook"
+    snippet: str
+    source: str
+    body: str = "" 

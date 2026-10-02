@@ -1,16 +1,14 @@
 # Strategies/CalendarGoogle.py
 import datetime
-import os.path
+from zoneinfo import ZoneInfo
 
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
+from Auth.GoogleAuth import get_google_credentials
 from Models.CalendarEvent import CalendarEvent
 from Strategies.CalendarStrategy import CalendarStrategy
 
-SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
+LOCAL_TZ = ZoneInfo("Europe/Amsterdam")
 
 
 class CalendarGoogle(CalendarStrategy):
@@ -18,23 +16,8 @@ class CalendarGoogle(CalendarStrategy):
     def collect_calendar(self, max_results: int = 10) -> list[CalendarEvent]:
         return [self._to_event(raw) for raw in self.get_upcoming_events(max_results)]
 
-    def get_credentials(self) -> Credentials:
-        creds = None
-        if os.path.exists("token.json"):
-            creds = Credentials.from_authorized_user_file("token.json", SCOPES)
-
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-                creds = flow.run_local_server(port=0)
-            with open("token.json", "w") as token:
-                token.write(creds.to_json())
-        return creds
-
     def get_upcoming_events(self, max_results: int = 10) -> list[dict]:
-        service = build("calendar", "v3", credentials=self.get_credentials())
+        service = build("calendar", "v3", credentials=get_google_credentials())
         now = datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
         result = (
             service.events()
@@ -51,9 +34,12 @@ class CalendarGoogle(CalendarStrategy):
 
     @staticmethod
     def _parse(value: dict) -> datetime.datetime:
-        
-        raw = value.get("dateTime") or value["date"]
-        return datetime.datetime.fromisoformat(raw)
+        # Timed events have "dateTime" (with offset); all-day events only have "date"
+        if "dateTime" in value:
+            return datetime.datetime.fromisoformat(value["dateTime"])
+        # All-day: a plain date, treat it as midnight local time
+        d = datetime.date.fromisoformat(value["date"])
+        return datetime.datetime(d.year, d.month, d.day, tzinfo=LOCAL_TZ)
 
     def _to_event(self, raw: dict) -> CalendarEvent:
         return CalendarEvent(

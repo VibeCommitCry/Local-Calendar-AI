@@ -4,7 +4,6 @@
 import inspect
 from datetime import date, datetime, time, timedelta
 
-from Readers.CalendarReader import CalendarReader
 from Models.EmailFilter import EmailFilter
 from Services.EmailService import EmailService
 from Models.CalendarFilter import CalendarFilter
@@ -27,43 +26,31 @@ def tool(func):
 
 
 @tool
-def get_calendar_events() -> str:
-    """Get the user's upcoming calendar events."""
-    events = CalendarReader().collect_calendars()
-    return (
-        "\n".join(f"{e.start:%a %d %b %H:%M} - {e.title}" for e in events)
-        or "No events."
-    )
-
-
-@tool
 def search_emails(
     query: str = "",
     sender: str = "",
-    subject: str = "",
     unread_only: bool = False,
     days: int = 0,
-    max_results: int = 10,
+    max_results: int = 5,
 ) -> str:
-    """Search the user's emails. Returns id, date, sender, subject and a short preview.
-    Use read_email with an id to get the full text.
+    """List or search the user's emails. Use for "my emails", "unread mail", "mail from X".
+    Call with no arguments to get the latest emails. Only set an argument if the user asked for it.
+    Returns an id, date, sender, subject and preview per email.
 
     Args:
-        query: Free-text search words, e.g. "invoice" (optional).
-        sender: Filter by sender name or address (optional).
-        subject: Filter by words in the subject (optional).
-        unread_only: Only return unread emails.
-        days: Only emails from the last N days (0 = no limit).
-        max_results: Maximum number of emails to return.
+        query: Search words, e.g. "invoice". Leave empty for the latest emails.
+        sender: Sender name or address, only if the user named one.
+        unread_only: True only if the user asked for unread emails.
+        days: Only emails from the last N days. 0 means no limit.
+        max_results: How many emails to return (default 5).
     """
     results = emails.read_emails(
         EmailFilter(
             query=query,
             sender=sender,
-            subject=subject,
             unread_only=unread_only,
             newer_than_days=days,
-            max_results=min(max_results, 20),
+            max_results=max(1, min(max_results, 20)),
         )
     )
     if not results:
@@ -77,7 +64,7 @@ def search_emails(
 
 @tool
 def read_email(email_id: str) -> str:
-    """Read the full text of one email. Use an id returned by search_emails.
+    """Read the full text of ONE email. Only call this after search_emails, with an id from its results.
 
     Args:
         email_id: The id of the email, copied exactly from search_emails.
@@ -103,34 +90,51 @@ def _fmt_event(e) -> str:
     return f"[id: {e.id}] {when} | {e.title}{where}"
 
 
+def _resolve_when(when: str, start_date: str) -> tuple[datetime, int | None]:
+    """Turn a keyword or date into (start, default_days). Done in code: small models are bad at dates."""
+    now = datetime.now(LOCAL_TZ)
+    today = now.date()
+    when = (when or "").strip().lower()
+    if start_date:
+        base = date.fromisoformat(start_date)
+        return datetime.combine(base, time.min, tzinfo=LOCAL_TZ), None
+    if when == "today":
+        return datetime.combine(today, time.min, tzinfo=LOCAL_TZ), 1
+    if when == "tomorrow":
+        return datetime.combine(today + timedelta(days=1), time.min, tzinfo=LOCAL_TZ), 1
+    if when == "this_week":
+        return now, 7 - today.weekday()
+    if when == "next_week":
+        monday = today + timedelta(days=7 - today.weekday())
+        return datetime.combine(monday, time.min, tzinfo=LOCAL_TZ), 7
+    return now, None
+
+
 @tool
 def search_calendar_events(
+    when: str = "",
     query: str = "",
-    days: int = 14,
+    days: int = 0,
     start_date: str = "",
     max_results: int = 20,
 ) -> str:
-    """Search the user's calendar. Returns id, time and title of each event.
-    Use get_calendar_event with an id for the description.
+    """Look up the user's calendar events. Use for "what's on my calendar", "do I have X tomorrow".
+    With no arguments it returns the next 14 days. Returns an id, time and title per event.
 
     Args:
-        query: Free-text search in title, description and location (optional).
-        days: How many days to look at, counting from the start date (1 = just that day).
-        start_date: First day as YYYY-MM-DD. Empty means from right now, today.
+        when: One of "today", "tomorrow", "this_week", "next_week". Leave empty for the next 14 days.
+        query: Search words in title, description or location, only if the user gave some.
+        days: Number of days to look at. Only set this if the user asked for a specific range.
+        start_date: Exact first day as YYYY-MM-DD. Only use if the user gave an exact date.
         max_results: Maximum number of events to return.
     """
-    days = max(1, min(days, 90))
-    if start_date:
-        base = date.fromisoformat(start_date)
-        start = datetime.combine(base, time.min, tzinfo=LOCAL_TZ)
-    else:
-        base = datetime.now(LOCAL_TZ).date()
-        start = datetime.now(LOCAL_TZ)
-    end = datetime.combine(base + timedelta(days=days), time.min, tzinfo=LOCAL_TZ)
+    start, default_days = _resolve_when(when, start_date)
+    days = max(1, min(days or default_days or 14, 90))
+    end = datetime.combine(start.date() + timedelta(days=days), time.min, tzinfo=LOCAL_TZ)
 
     events = calendar.read_events(
         CalendarFilter(
-            query=query, start=start, end=end, max_results=min(max_results, 50)
+            query=query, start=start, end=end, max_results=max(1, min(max_results, 50))
         )
     )
     return "\n".join(_fmt_event(e) for e in events) or "No events found."
@@ -138,7 +142,7 @@ def search_calendar_events(
 
 @tool
 def get_calendar_event(event_id: str) -> str:
-    """Get one calendar event with its description. Use an id from search_calendar_events.
+    """Get ONE calendar event with its description. Only call this after search_calendar_events, with an id from its results.
 
     Args:
         event_id: The id of the event, copied exactly from search_calendar_events.
@@ -160,7 +164,8 @@ def find_free_time(
     latest: str = "17:00",
     include_weekends: bool = False,
 ) -> str:
-    """Find free slots in the user's calendar, starting from now.
+    """Find free time slots in the user's calendar. Use for "when am I free", "find time for a meeting".
+    Defaults are fine unless the user gave a duration or time range.
 
     Args:
         duration_minutes: Minimum length of the free slot in minutes.

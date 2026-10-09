@@ -2,6 +2,8 @@
 """All functions the agent can call. Add a new tool by decorating it with @tool."""
 
 import inspect
+import re
+from pathlib import Path
 from datetime import date, datetime, time, timedelta
 
 from Models.EmailFilter import EmailFilter
@@ -15,6 +17,7 @@ emails = EmailService()
 calendar_service = CalendarService()
 
 MAX_BODY_CHARS = 2000
+MEMORY_PATH = Path(__file__).parent / "Identity" / "MEMORY.md"
 
 TOOLS: dict = {}
 
@@ -281,6 +284,74 @@ def find_free_time(
         f"{s:%a %d %b %H:%M}-{e:%H:%M} ({int((e - s).total_seconds() // 60)} min free)"
         for s, e in slots
     )
+
+
+MEMORY_HEADER = (
+    "# Memory\n\n"
+    "<!-- Facts the agent has learned, as \"- [level] fact\" (10 = most important).\n"
+    "     Written automatically via remember(). -->\n"
+)
+MEMORY_LINE = re.compile(r"^- (?:\[(\d+)\] )?(.+)$")
+DEFAULT_LEVEL = 5  # facts saved before levels existed
+
+
+def read_memory() -> dict[str, int]:
+    """Return {fact: level} from MEMORY.md. A repeated fact keeps its highest level."""
+    facts: dict[str, int] = {}
+    if not MEMORY_PATH.exists():
+        return facts
+    for line in MEMORY_PATH.read_text(encoding="utf-8").splitlines():
+        match = MEMORY_LINE.match(line.strip())
+        if match:
+            level = int(match.group(1) or DEFAULT_LEVEL)
+            fact = match.group(2).strip()
+            facts[fact] = max(level, facts.get(fact, 0))
+    return facts
+
+
+def memory_prompt() -> str:
+    """The memory section of the system prompt, grouped by importance."""
+    groups = [
+        ("Always follow (level 8-10)", 8, 10),
+        ("Keep in mind (level 4-7)", 4, 7),
+        ("Small details (level 1-3)", 1, 3),
+    ]
+    facts = sorted(read_memory().items(), key=lambda kv: -kv[1])
+    parts = ["# Memory"]
+    for heading, low, high in groups:
+        lines = [f"- [{lvl}] {fact}" for fact, lvl in facts if low <= lvl <= high]
+        if lines:
+            parts.append(f"## {heading}\n" + "\n".join(lines))
+    if len(parts) == 1:
+        parts.append("(nothing remembered yet)")
+    return "\n\n".join(parts)
+
+
+@tool
+def remember(fact: str, importance: int = 5) -> str:
+    """Save a fact or preference about the user for future conversations.
+    Use when the user tells you something worth remembering long-term,
+    e.g. a preference or a recurring detail, not for one-off requests.
+    Saving a fact that is already remembered just changes its importance.
+
+    Args:
+        fact: The fact to remember, written as a short, clear statement.
+        importance: 1 to 10. 10 = a rule you must always follow (e.g. "never book
+            anything on Sunday"). 5 = a normal preference. 1 = a small detail.
+            Use 8-10 only if the user says it is important or uses words like
+            "always" or "never".
+    """
+    # One line per fact, so a fact can't inject its own headings into the prompt
+    fact = " ".join(fact.split())
+    if not fact:
+        return "Nothing to remember: the fact was empty."
+    level = max(1, min(int(importance), 10))
+
+    facts = read_memory()
+    facts[fact] = level  # overwrite: the newest importance wins
+    lines = [f"- [{lvl}] {f}" for f, lvl in sorted(facts.items(), key=lambda kv: -kv[1])]
+    MEMORY_PATH.write_text(MEMORY_HEADER + "\n".join(lines) + "\n", encoding="utf-8")
+    return f"Remembered (importance {level}/10): {fact}"
 
 
 def run_tool(name: str, arguments: dict | None) -> str:

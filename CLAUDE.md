@@ -33,6 +33,10 @@ Layered, with a Strategy pattern per data provider:
 - **Readers/** — older API (`collect_calendars()` / `collect_emails()`) that merges all strategies. Superseded by Services but still used by the `get_calendar_events` tool.
 - **Agent/** — [Agent/agent_tools.py](Agent/agent_tools.py) holds the tools; [Agent/Agent.py](Agent/Agent.py) is the Ollama chat loop (history trimmed to the last 30 messages, loops until the model stops requesting tool calls).
 
+### System prompt (`Agent/Identity/`)
+
+`system_message()` in [Agent/Agent.py](Agent/Agent.py) joins four files: `SOUL.md` (personality), `AGENTS.md` (rules + style; `{now}`/`{upcoming}` are substituted with `str.replace`), `TOOLS.md` (one-line overview, the docstrings stay the real tool schema) and `MEMORY.md`. `MEMORY.md` is written by the `remember` tool (lines `- [level] fact`, level 1–10, duplicates merged; lines without a level count as 5), not edited by hand. `memory_prompt()` in `agent_tools.py` groups it into "Always follow" (8–10), "Keep in mind" (4–7) and "Small details" (1–3) for the prompt; after a `remember` call `ask()` rebuilds `messages[0]` so the fact is used in the same session. Add a line to `TOOLS.md` when adding a tool.
+
 ### Adding an agent tool
 
 Decorate a function with `@tool` in `agent_tools.py`. The function's signature and Google-style docstring (`Args:`) are passed straight to Ollama as the tool schema, so the docstring is the model's instructions. Tools return strings. `run_tool` drops arguments the function doesn't accept and converts exceptions into error strings. Untrusted content (email bodies, event descriptions) is wrapped in "untrusted data" markers to resist prompt injection — keep that for any new tool that returns external text.

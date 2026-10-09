@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from Agent.agent_tools import TOOLS, run_tool
 
-MODEL = "qwen2.5:3b"
+MODEL = "qwen2.5:14b"
 MAX_TOOL_ROUNDS = 5  # stop a confused model from looping forever
 MAX_HISTORY = 30  # keep the context from growing forever
 

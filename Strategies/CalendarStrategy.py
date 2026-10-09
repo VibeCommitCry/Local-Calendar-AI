@@ -15,14 +15,15 @@ class CalendarStrategy(ABC):
         """Return events in the filter's time window, sorted by start."""
 
     @abstractmethod
-    def get_event(self, event_id: str) -> CalendarEvent:
+    def get_event(self, event_id: str, calendar: str = "") -> CalendarEvent:
         """Fetch one event including its description."""
 
     # CREATE / UPDATE / DELETE
     @abstractmethod
-    def create_event(self, title: str, start: datetime, end: datetime,
-                     location: str = "", description: str = "") -> CalendarEvent:
-        """Create an event."""
+    def create_event(self, title: str, start: datetime, end: datetime | None,
+                     location: str = "", description: str = "",
+                     calendar: str = "") -> CalendarEvent:
+        """Create an event. end=None means an all-day event on start's day."""
 
     @abstractmethod
     def update_event(self, event_id: str, **changes) -> CalendarEvent:

@@ -27,11 +27,14 @@ class CalendarService:
         events.sort(key=lambda e: e.start)
         return events[: filters.max_results]
 
-    def get_event(self, event_id: str, source: str = "google") -> CalendarEvent:
-        return self._strategy(source).get_event(event_id)
+    def get_event(self, event_id: str, calendar: str = "", source: str = "google") -> CalendarEvent:
+        return self._strategy(source).get_event(event_id, calendar)
 
-    def create_event(self, title, start, end, location="", description="", source="google"):
-        return self._strategy(source).create_event(title, start, end, location, description)
+    def create_event(self, title, start, end, location="", description="",
+                     calendar="", source="google"):
+        return self._strategy(source).create_event(
+            title, start, end, location, description, calendar
+        )
 
     def update_event(self, event_id: str, source: str = "google", **changes):
         return self._strategy(source).update_event(event_id, **changes)

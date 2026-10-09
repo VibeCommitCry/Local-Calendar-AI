@@ -12,3 +12,4 @@ class CalendarEvent:
     location: str = ""
     description: str = ""
     all_day: bool = False
+    calendar: str = ""  # friendly calendar name, e.g. "work" / "school" / "personal"

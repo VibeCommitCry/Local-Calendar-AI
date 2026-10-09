@@ -6,8 +6,13 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 SCOPES = [
-    "https://www.googleapis.com/auth/calendar.readonly",
-    "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/calendar.app.created",  # create/manage secondary calendars + their events
+    "https://www.googleapis.com/auth/calendar.calendars",  # view/edit calendar properties, create secondary calendars
+    "https://www.googleapis.com/auth/calendar.events.owned",  # create/edit/delete events on calendars you own
+    "https://www.googleapis.com/auth/gmail.readonly",  # read emails
+    "https://www.googleapis.com/auth/gmail.drafts.create",  # create draft emails (not send)
+    "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
+    "https://www.googleapis.com/auth/calendar.events.readonly",
 ]
 
 

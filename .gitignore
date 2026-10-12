@@ -5,3 +5,7 @@ __pycache__/
 .venv/
 venv/
 .env
+ms_token_cache.json
+settings.py
+agent/Identity/MEMORY.md
+output/results/

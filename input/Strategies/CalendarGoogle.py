@@ -1,12 +1,12 @@
-# Strategies/CalendarGoogle.py
+# input/Strategies/CalendarGoogle.py
 import datetime as dt
 
 from googleapiclient.discovery import build
 
-from Auth.GoogleAuth import get_google_credentials
-from Models.CalendarEvent import CalendarEvent
-from Models.CalendarFilter import CalendarFilter
-from Strategies.CalendarStrategy import CalendarStrategy
+from logic.Auth.GoogleAuth import get_google_credentials
+from logic.Models.CalendarEvent import CalendarEvent
+from logic.Models.CalendarFilter import CalendarFilter
+from input.Strategies.CalendarStrategy import CalendarStrategy
 from settings import CALENDAR_IDS, LOCAL_TZ, WRITABLE_CALENDARS
 
 

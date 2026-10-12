@@ -1,4 +1,4 @@
-# Strategies/CalendarMicrosoft.py
+# input/Strategies/CalendarMicrosoft.py
 import os
 from datetime import datetime, timedelta, timezone
 
@@ -6,8 +6,8 @@ import msal
 import requests
 from dotenv import load_dotenv
 
-from Models.CalendarEvent import CalendarEvent
-from Strategies.CalendarStrategy import CalendarStrategy
+from logic.Models.CalendarEvent import CalendarEvent
+from input.Strategies.CalendarStrategy import CalendarStrategy
 
 load_dotenv()
 

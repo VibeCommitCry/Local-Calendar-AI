@@ -1,18 +1,18 @@
-# Agent/Agent.py
+# agent/Agent.py
 import ollama
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from Agent.agent_tools import TOOLS, memory_prompt, run_tool
+from agent.agent_tools import TOOLS, memory_prompt, run_tool
 
-MODEL = "qwen2.5:14b"
+MODEL = "qwen2.5:3b"
 MAX_TOOL_ROUNDS = 5  # stop a confused model from looping forever
 MAX_HISTORY = 30  # keep the context from growing forever
 IDENTITY_DIR = Path(__file__).parent / "Identity"
 
 
 def load_identity() -> str:
-    """Build the system prompt from the files in Agent/Identity/."""
+    """Build the system prompt from the files in agent/Identity/."""
     read = lambda name: (IDENTITY_DIR / name).read_text(encoding="utf-8").strip()
 
     now = datetime.now()

@@ -1,4 +1,4 @@
-# Strategies/EmailGmail.py
+# input/Strategies/EmailGmail.py
 import base64
 import html
 import re
@@ -6,10 +6,10 @@ from datetime import datetime, timezone
 
 from googleapiclient.discovery import build
 
-from Auth.GoogleAuth import get_google_credentials
-from Models.EmailFilter import EmailFilter
-from Models.EmailMessage import EmailMessage
-from Strategies.EmailStrategy import EmailStrategy
+from logic.Auth.GoogleAuth import get_google_credentials
+from logic.Models.EmailFilter import EmailFilter
+from logic.Models.EmailMessage import EmailMessage
+from input.Strategies.EmailStrategy import EmailStrategy
 
 
 class EmailGmail(EmailStrategy):

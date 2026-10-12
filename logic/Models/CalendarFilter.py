@@ -1,4 +1,4 @@
-# Models/CalendarFilter.py
+# logic/Models/CalendarFilter.py
 from dataclasses import dataclass
 from datetime import datetime
 

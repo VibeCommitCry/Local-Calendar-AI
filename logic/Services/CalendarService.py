@@ -1,10 +1,10 @@
-# Services/CalendarService.py
+# logic/Services/CalendarService.py
 from datetime import date, datetime, time, timedelta
 
-from Models.CalendarEvent import CalendarEvent
-from Models.CalendarFilter import CalendarFilter
-from Strategies.CalendarStrategy import CalendarStrategy
-from Strategies.CalendarGoogle import CalendarGoogle  # import so it registers as a subclass
+from logic.Models.CalendarEvent import CalendarEvent
+from logic.Models.CalendarFilter import CalendarFilter
+from input.Strategies.CalendarStrategy import CalendarStrategy
+from input.Strategies.CalendarGoogle import CalendarGoogle  # import so it registers as a subclass
 from settings import LOCAL_TZ
 
 

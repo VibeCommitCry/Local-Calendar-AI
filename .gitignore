@@ -8,3 +8,4 @@ venv/
 ms_token_cache.json
 settings.py
 Agent/Identity/MEMORY.md
+output/

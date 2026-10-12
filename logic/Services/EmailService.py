@@ -1,8 +1,8 @@
-# Services/EmailService.py
-from Models.EmailFilter import EmailFilter
-from Models.EmailMessage import EmailMessage
-from Strategies.EmailStrategy import EmailStrategy
-from Strategies.EmailGmail import EmailGmail  # import so it registers as a subclass
+# logic/Services/EmailService.py
+from logic.Models.EmailFilter import EmailFilter
+from logic.Models.EmailMessage import EmailMessage
+from input.Strategies.EmailStrategy import EmailStrategy
+from input.Strategies.EmailGmail import EmailGmail  # import so it registers as a subclass
 
 
 class EmailService:

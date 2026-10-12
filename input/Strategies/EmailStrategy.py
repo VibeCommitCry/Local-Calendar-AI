@@ -1,8 +1,8 @@
-# Strategies/EmailStrategy.py
+# input/Strategies/EmailStrategy.py
 from abc import ABC, abstractmethod
 
-from Models.EmailFilter import EmailFilter
-from Models.EmailMessage import EmailMessage
+from logic.Models.EmailFilter import EmailFilter
+from logic.Models.EmailMessage import EmailMessage
 
 
 class EmailStrategy(ABC):

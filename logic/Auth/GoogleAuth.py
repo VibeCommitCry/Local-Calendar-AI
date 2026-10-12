@@ -1,4 +1,4 @@
-# Auth/GoogleAuth.py
+# logic/Auth/GoogleAuth.py
 import os.path
 
 from google.auth.transport.requests import Request

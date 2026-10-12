@@ -1,4 +1,4 @@
-"""Extract action items from emails as validated JSON.  Run: python -m Extract.extract_email"""
+"""Extract action items from emails as validated JSON.  Run: python -m output.extract_email"""
 
 import json
 from datetime import datetime
@@ -7,11 +7,12 @@ from pathlib import Path
 import ollama
 from pydantic import ValidationError
 
-from Agent.Agent import MODEL
-from Models.ActionItem import EmailActionItems
-from Models.EmailMessage import EmailMessage
+from agent.Agent import MODEL
+from output.ActionItem import EmailActionItems
+from logic.Models.EmailMessage import EmailMessage
 
 SAMPLES = Path("tests/Samples/Email.json")
+RESULTS = Path("output/results")  # git-ignored: generated files, kept apart from this code
 MAX_BODY_CHARS = 2000  # same limit as read_email: small models get lost in long text
 
 PROMPT = (
@@ -79,7 +80,7 @@ def extract_action_items(email: EmailMessage) -> EmailActionItems:
 if __name__ == "__main__":
     # Sample emails instead of Gmail: no login needed and the input is the same every run
     samples = json.loads(SAMPLES.read_text(encoding="utf-8"))
-    Path("output").mkdir(exist_ok=True)  # first run: output/ doesn't exist yet
+    RESULTS.mkdir(parents=True, exist_ok=True)  # first run: the folder doesn't exist yet
 
     for raw_email in samples:
         # The sample file has no snippet/source, but EmailMessage requires them
@@ -95,4 +96,4 @@ if __name__ == "__main__":
             continue
         json_text = result.model_dump_json(indent=2)  # dates become ISO strings again
         print(json_text)
-        (Path("output") / f"{email.id}.json").write_text(json_text, encoding="utf-8")
+        (RESULTS / f"{email.id}.json").write_text(json_text, encoding="utf-8")

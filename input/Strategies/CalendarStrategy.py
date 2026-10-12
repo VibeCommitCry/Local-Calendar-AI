@@ -1,9 +1,9 @@
-# Strategies/CalendarStrategy.py
+# input/Strategies/CalendarStrategy.py
 from abc import ABC, abstractmethod
 from datetime import datetime
 
-from Models.CalendarEvent import CalendarEvent
-from Models.CalendarFilter import CalendarFilter
+from logic.Models.CalendarEvent import CalendarEvent
+from logic.Models.CalendarFilter import CalendarFilter
 
 
 class CalendarStrategy(ABC):

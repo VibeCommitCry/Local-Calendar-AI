@@ -1,4 +1,4 @@
-# Models/EmailFilter.py
+# logic/Models/EmailFilter.py
 from dataclasses import dataclass
 
 @dataclass

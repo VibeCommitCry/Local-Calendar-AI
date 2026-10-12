@@ -7,5 +7,5 @@ venv/
 .env
 ms_token_cache.json
 settings.py
-Agent/Identity/MEMORY.md
-output/
+agent/Identity/MEMORY.md
+output/results/

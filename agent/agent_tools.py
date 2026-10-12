@@ -1,4 +1,4 @@
-# Agent/agent_tools.py
+# agent/agent_tools.py
 """All functions the agent can call. Add a new tool by decorating it with @tool."""
 
 import inspect
@@ -6,10 +6,10 @@ import re
 from pathlib import Path
 from datetime import date, datetime, time, timedelta
 
-from Models.EmailFilter import EmailFilter
-from Services.EmailService import EmailService
-from Models.CalendarFilter import CalendarFilter
-from Services.CalendarService import CalendarService
+from logic.Models.EmailFilter import EmailFilter
+from logic.Services.EmailService import EmailService
+from logic.Models.CalendarFilter import CalendarFilter
+from logic.Services.CalendarService import CalendarService
 
 from settings import LOCAL_TZ, WRITABLE_CALENDARS
 

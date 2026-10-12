@@ -4,7 +4,7 @@ Run from the repo root: python -m scripts.list_calendars"""
 
 from googleapiclient.discovery import build
 
-from Auth.GoogleAuth import get_google_credentials
+from logic.Auth.GoogleAuth import get_google_credentials
 
 service = build("calendar", "v3", credentials=get_google_credentials())
 for c in service.calendarList().list().execute().get("items", []):

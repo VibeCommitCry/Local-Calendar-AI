@@ -19,9 +19,9 @@ class ActionItem(BaseModel):
 
 | File | What it is |
 |---|---|
-| `Models/ActionItem.py` | The two pydantic models: `ActionItem` and `EmailActionItems` |
-| `Extract/extract_email.py` | `extract_action_items(email)`: asks the model, validates, retries once. Running it as a script processes every email in `tests/Samples/Email.json` |
-| `.gitignore` | Added `output/`, where the JSON results are saved |
+| `output/ActionItem.py` | The two pydantic models: `ActionItem` and `EmailActionItems` |
+| `output/extract_email.py` | `extract_action_items(email)`: asks the model, validates, retries once. Running it as a script processes every email in `tests/Samples/Email.json` |
+| `.gitignore` | Added `output/results/`, where the JSON results are saved |
 
 ### The models
 
@@ -95,7 +95,7 @@ model_validate_json(reply)                ← layer 2 (right after the reply)
   ▼
 _check_against_email(result, email)       ← layer 3 (only if layer 2 passed)
   │
-  ├─ OK ──────────────► return the result, save output/<id>.json
+  ├─ OK ──────────────► return the result, save output/results/<id>.json
   │
   └─ error
        ├─ first time: send the reply + the error back to the model, try ONE more time
@@ -115,9 +115,9 @@ Nothing unvalidated is ever returned or saved.
 
 ## 6. What you need to do
 
-1. **Get a model that exists.** `Agent/Agent.py` sets `MODEL = "qwen2.5:14b"`. Run `ollama pull qwen2.5:14b`, or change `MODEL` to one you have (e.g. `qwen2.5:3b`).
+1. **Get a model that exists.** `agent/Agent.py` sets `MODEL = "qwen2.5:14b"`. Run `ollama pull qwen2.5:14b`, or change `MODEL` to one you have (e.g. `qwen2.5:3b`).
 2. **Select the right Python interpreter in VS Code** (Python 3.12) so pydantic is found.
-3. **Run it** from the repo root: `python -m Extract.extract_email`. Look at the printed JSON and the files in `output/`.
+3. **Run it** from the repo root: `python -m output.extract_email`. Look at the printed JSON and the files in `output/results/`.
 4. **Read the results critically.** For each sample, ask: is every item real? Are dates right? Is anything missing? This is the part no validation can do.
 5. **Experiment** (your learning project):
    - Add a check that `due_date` is not before the email's sent date.

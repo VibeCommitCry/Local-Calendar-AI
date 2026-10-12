@@ -1,0 +1,1 @@
+A privacy-first, local AI scheduling assistant. It securely processes your local emails and calendars to coordinate your timeline, answer schedule queries, and automatically create new events. No data ever leaves your machine, ensuring total privacy.

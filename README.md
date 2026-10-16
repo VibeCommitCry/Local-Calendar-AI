@@ -86,7 +86,7 @@ ollama pull qwen2.5:3b
 ```
 
 1. Put your Google OAuth client in `credentials.json` (root). On first run a browser consent flow creates `token.json`.
-2. Create `settings.py` (git-ignored) with `LOCAL_TZ` (a `ZoneInfo`), `CALENDAR_IDS` (friendly name -> Google calendar id) and `WRITABLE_CALENDARS`. `python -m scripts.list_calendars` prints your calendar ids.
+2. Copy [settings.example.py](settings.example.py) to `settings.py` (git-ignored) and fill in `LOCAL_TZ` (a `ZoneInfo`), `CALENDAR_IDS` (friendly name -> Google calendar id) and `WRITABLE_CALENDARS`. `python -m scripts.list_calendars` prints your calendar ids.
 3. Optional: copy `.env.example` to `.env` for the Microsoft client and tenant ids.
 
 Run everything from the repo root:

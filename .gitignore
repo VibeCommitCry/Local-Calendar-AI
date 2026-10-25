@@ -9,3 +9,5 @@ ms_token_cache.json
 settings.py
 agent/Identity/MEMORY.md
 output/results/
+CLAUDE.md
+.vscode/
